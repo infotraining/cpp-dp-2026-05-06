@@ -1,0 +1,5 @@
+Rectangle [100,200] 10 20
+ShapeGroup 2
+Square [400,40] 100
+Circle [100,400] 50
+Text [90,100] Hello
