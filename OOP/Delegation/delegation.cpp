@@ -33,6 +33,11 @@ namespace Inheritance
             return text_;
         }
 
+        Color color() const
+        {
+            return color_;
+        }
+
         virtual void render(size_t line_width) const
         {
             std::cout << "[" << text() << std::setw(line_width - text().length()) << std::right << "" << "]\n";
@@ -70,14 +75,14 @@ namespace Inheritance
 
 namespace Delegation
 {
-    class TextAlignment
+    class ITextAlignment
     {
     public:
         virtual std::string aligned_text(const std::string& text, size_t line_width) const = 0;
-        virtual ~TextAlignment() = default;
+        virtual ~ITextAlignment() = default;
     };
 
-    class LeftAlignment : public TextAlignment
+    class LeftAlignment : public ITextAlignment
     {
     public:
         std::string aligned_text(const std::string& text, size_t line_width) const override
@@ -88,7 +93,7 @@ namespace Delegation
         }
     };
 
-    class CenterAlignment : public TextAlignment
+    class CenterAlignment : public ITextAlignment
     {
     public:
         std::string aligned_text(const std::string& text, size_t line_width) const override
@@ -101,7 +106,7 @@ namespace Delegation
         }
     };
 
-    class RightAlignment : public TextAlignment
+    class RightAlignment : public ITextAlignment
     {
     public:
         std::string aligned_text(const std::string& text, size_t line_width) const override
@@ -116,24 +121,24 @@ namespace Delegation
     {
         std::string text_;
         Color color_;
-        std::unique_ptr<TextAlignment> alignment_;
+        std::unique_ptr<ITextAlignment> alignment_; // delegate to an alignment strategy - composition with an interface for the alignment behavior
 
     public:
-        TextParagraph(std::string text, Color color, std::unique_ptr<TextAlignment> alignment = std::make_unique<LeftAlignment>())
+        TextParagraph(std::string text, Color color, std::unique_ptr<ITextAlignment> alignment = std::make_unique<LeftAlignment>())
             : text_(std::move(text))
             , color_(std::move(color))
             , alignment_{std::move(alignment)}
         {
         }
 
-        void set_alignment(std::unique_ptr<TextAlignment> alignment)
+        void set_alignment(std::unique_ptr<ITextAlignment> alignment)
         {
             alignment_ = std::move(alignment);
         }
 
         void render(size_t line_width) const
         {
-            std::cout << "[" << alignment_->aligned_text(text_, line_width) << "]\n";
+            std::cout << "[" << alignment_->aligned_text(text_, line_width) << "]\n"; // delegate to the current alignment strategy to get the aligned text
         }
     };
 } // namespace Delegation
@@ -143,6 +148,8 @@ void use_inheritance()
     using namespace Inheritance;
 
     TextParagraph left_aligned{"This is sample of text...", Color{0, 0, 0}};
+    CenteredAlignedTextParagraph changed_to_center_aligned{left_aligned.text(), left_aligned.color()};
+
     RightAlignedTextParagraph right_aligned{"This is sample of text...", Color{0, 0, 0}};
     CenteredAlignedTextParagraph center_aligned{"This is sample of text...", Color{0, 0, 0}};
 

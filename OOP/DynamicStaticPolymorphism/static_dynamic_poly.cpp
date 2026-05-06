@@ -8,14 +8,14 @@
 
 namespace DynamicPolymorphism
 {
-    class Formatter
+    class IFormatter
     {
     public:
         virtual std::string format(const std::string& data) = 0;
-        virtual ~Formatter() = default;
+        virtual ~IFormatter() = default;
     };
 
-    class UpperCaseFormatter : public Formatter
+    class UpperCaseFormatter : public IFormatter
     {
     public:
         std::string format(const std::string& data) override
@@ -28,7 +28,7 @@ namespace DynamicPolymorphism
         }
     };
 
-    class LowerCaseFormatter : public Formatter
+    class LowerCaseFormatter : public IFormatter
     {
     public:
         std::string format(const std::string& data) override
@@ -41,8 +41,9 @@ namespace DynamicPolymorphism
         }
     };
 
-    class CapitalizeFormatter : public Formatter
+    class CapitalizeFormatter : public IFormatter
     {
+        std::string prefix_ = "Capitalized: ";
     public:
         std::string format(const std::string& data) override
         {
@@ -55,22 +56,27 @@ namespace DynamicPolymorphism
                 std::transform(data.begin() + 1, data.end(), transformed_data.begin() + 1, [](char c) { return std::tolower(c); });
             }
 
-            return transformed_data;
+            return prefix_ + transformed_data;
         }
     };
 
     class Logger
     {
-        std::unique_ptr<Formatter> formatter_;
+        std::unique_ptr<IFormatter> formatter_;
 
     public:
-        Logger(std::unique_ptr<Formatter> formatter)
+        Logger(std::unique_ptr<IFormatter> formatter)
             : formatter_{std::move(formatter)}
         { }
 
         void log(const std::string& data)
         {
             std::cout << "LOG: " << formatter_->format(data) << '\n';
+        }
+
+        void set_formatter(std::unique_ptr<IFormatter> formatter)
+        {
+            formatter_ = std::move(formatter);
         }
     };
 } // namespace DynamicPolymorphism
@@ -88,17 +94,36 @@ namespace StaticPolymorphism
         }
     };
 
-    struct CapitalizeFormatter
+    struct LowerCaseFormatter
     {
         std::string format(const std::string& message) const
         {
             std::string result = message;
-            result[0] = std::toupper(result[0]);
+            std::transform(result.begin(), result.end(),
+                result.begin(), [](char c) { return std::tolower(c); });
             return result;
         }
     };
 
-    template <typename TFormatter = UpperCaseFormatter>
+    struct CapitalizeFormatter
+    {
+        std::string prefix_ = "Capitalized: ";
+
+        std::string format(const std::string& message) const
+        {
+            std::string result = message;
+            result[0] = std::toupper(result[0]);
+            return prefix_ + result;
+        }
+    };
+
+    template <typename T>
+    concept IFormatter = requires(T formatter, const std::string& message) 
+    {
+        { formatter.format(message) } -> std::convertible_to<std::string>;
+    };
+
+    template <IFormatter TFormatter = UpperCaseFormatter>        
     class Logger
     {
         TFormatter formatter_;
@@ -113,7 +138,7 @@ namespace StaticPolymorphism
 
         void log(const std::string& message)
         {
-            std::cout << formatter_.format(message) << std::endl;
+            std::cout << formatter_.format(message) << std::endl; // early binding to call the correct format() method for the formatter type - at compile time
         }
     };
 } // namespace StaticPolymorphism
@@ -130,6 +155,9 @@ void dynamic_polymorphism()
 
     logger = Logger{std::make_unique<CapitalizeFormatter>()};
     logger.log("Hello, World!");
+
+    logger.set_formatter(std::make_unique<UpperCaseFormatter>());
+    logger.log("Hello, World!");
 }
 
 void static_polymorphism()
@@ -141,6 +169,9 @@ void static_polymorphism()
 
     Logger<CapitalizeFormatter> logger2;
     logger2.log("hello, world!");
+
+    Logger<LowerCaseFormatter> logger3;
+    logger3.log("Hello, World!");
 }
 
 int main()

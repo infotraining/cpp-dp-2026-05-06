@@ -62,23 +62,7 @@ protected:
     int y() const { return coord_.y(); }
 };
 
-class Square : public ShapeBase
-{
-    int size_;
-
-public:
-    Square(int x, int y, int size) : ShapeBase{x, y}, size_{size}
-    {
-        assert(size_ >= 0);
-    }
-
-    void draw() override
-    {
-        std::cout << "Square(x: " << x() << ", y: " << y() << ", size: " << size_ << ")\n";
-    }
-};
-
-class Rectangle : public ShapeBase
+class Rectangle : public ShapeBase // hybrid inheritance: inherits from ShapeBase (abstract base class) and implements IShape interface
 {
     int width_;
     int height_;
@@ -93,6 +77,51 @@ public:
     void draw() override
     {
         std::cout << "Rectangle(x: " << x() << ", y: " << y() << ", width: " << width_ << ", height: " << height_ << ")\n";
+    }
+
+    int width() const { return width_; }
+    int height() const { return height_; }
+
+    void set_width(int width)
+    {
+        assert(width >= 0);
+        width_ = width;
+    }
+
+    void set_height(int height)
+    {
+        assert(height >= 0);
+        height_ = height;
+    }
+};
+
+class Square : public IShape
+{
+    Rectangle rect_; // composition: Square has a Rectangle to reuse its functionality for width and height management
+public:
+    Square(int x, int y, int size) : rect_{x, y, size, size}
+    {
+        assert(rect_.width() == rect_.height()); // invariant: width and height must be equal for a square
+    }
+
+    void draw() override
+    {
+        rect_.draw(); // delegate drawing to the Rectangle's draw() method
+    }
+
+    void move(int dx, int dy) override
+    {
+        rect_.move(dx, dy); // delegate movement to the Rectangle's move() method
+    }
+
+    int size() const { return rect_.width(); }
+
+    void set_size(int size)
+    {
+        assert(size >= 0);
+        rect_.set_width(size);
+        rect_.set_height(size);
+        assert(rect_.width() == rect_.height()); // invariant: width and height must be equal for a square
     }
 };
 
@@ -112,7 +141,7 @@ public:
     }
 };
 
-class Triangle : public IShape
+class Triangle : public IShape // interface inheritance
 {
     std::array<Coordinate, 3> vertices_;
 
@@ -148,7 +177,7 @@ void draw_shapes(const std::vector<std::unique_ptr<IShape>> &shapes)
 {
     for (const auto &shp : shapes)
     {
-        shp->draw();
+        shp->draw(); // late binding (dynamic dispatch) to call the correct draw() method for each shape type
     }
 }
 

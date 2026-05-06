@@ -50,7 +50,7 @@ public:
     void play(const std::string& track_title)
     {
         // creation of the object
-        std::unique_ptr<MusicService> music_service = music_service_creator_->create_music_service();
+        std::unique_ptr<MusicService> music_service = music_service_creator_->create_music_service(); // delegation of the creation to the factory method of the creator class - decoupling the client from the concrete product classes
 
         // usage of the object
         std::optional<Track> track = music_service->get_track(track_title);
@@ -69,17 +69,13 @@ public:
     }
 };
 
-// parametrized factory
-using MusicServiceFactory = std::unordered_map<std::string, std::shared_ptr<MusicServiceCreator>>;
-
 int main()
 {
-    MusicServiceFactory music_service_factory;
-    music_service_factory.emplace("Tidal", std::make_shared<TidalServiceCreator>("tidal_user", "KJH8324d&df"));
-    music_service_factory.emplace("Spotify", std::make_shared<SpotifyServiceCreator>("spotify_user", "rjdaslf276%2", 45));
-    music_service_factory.emplace("Filesystem", std::make_shared<FsMusicServiceCreator>());
+    auto tidal_creator = std::make_shared<TidalServiceCreator>("tidal_user", "sdfj2%$#");
+    auto spotify_creator = std::make_shared<SpotifyServiceCreator>("spotify_user", "rjdaslf276%2", 45);
+    auto apple_creator = std::make_shared<AppleMusicServiceCreator>("apple_user", "apple_secret", 30);
 
     std::string id_from_config = "Tidal";
-    MusicApp app(music_service_factory.at(id_from_config));
+    MusicApp app(apple_creator);
     app.play("Would?");
 }
