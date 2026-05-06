@@ -7,6 +7,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <functional>
 
 using Track = std::vector<char>;
 
@@ -81,7 +82,6 @@ public:
 
 namespace Canonical
 {
-
     // "Creator"
     class MusicServiceCreator
     {
@@ -158,6 +158,28 @@ namespace Canonical
         std::unique_ptr<MusicService> create_music_service() override
         {
             return std::make_unique<AppleMusicService>(user_name_, secret_, timeout_);
+        }
+    };
+}
+
+namespace ModernCpp
+{
+    using MusicServiceCreator = std::function<std::unique_ptr<MusicService>()>;
+
+    class SpotifyServiceCreator
+    {
+        std::string user_name_;
+        std::string secret_;
+        int timeout_;
+    public:
+        SpotifyServiceCreator(const std::string &user_name, const std::string &secret, int timeout)
+            : user_name_{user_name}, secret_{secret}, timeout_{timeout}
+        {
+        }
+
+        std::unique_ptr<MusicService> operator()() const
+        {
+            return std::make_unique<SpotifyService>(user_name_, secret_, timeout_);
         }
     };
 }
