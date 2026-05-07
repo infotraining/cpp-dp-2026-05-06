@@ -1,5 +1,10 @@
 #include "square_reader_writer.hpp"
 #include "../square.hpp"
+#include "../generic_factory.hpp"
+
+static bool is_registered = 
+    SingletonShapeRWFactory::instance()
+        .register_creator(make_type_index<Drawing::Square>(), []() { return std::make_unique<Drawing::IO::SquareReaderWriter>(); });
 
 void Drawing::IO::SquareReaderWriter::read(Drawing::Shape& shp, std::istream& in)
 {
