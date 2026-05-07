@@ -26,7 +26,6 @@ public:
 // "Decorator"
 class Decorator : public Component
 {
-protected:
     std::shared_ptr<Component> component_;
 
 public:

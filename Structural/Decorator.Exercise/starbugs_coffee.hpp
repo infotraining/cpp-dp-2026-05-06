@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <memory>
 
 class Coffee
 {
@@ -79,5 +80,85 @@ public:
 
 // TODO: Add condiments that can be added to coffee: WhippedCream: 2.5$, Whisky: 6.0$, ExtraEspresso: 4.0$
 // Hint#1: Add CoffeeDecorator and concrete decorators for condiments 
+
+class CoffeeDecorator : public Coffee
+{
+    std::unique_ptr<Coffee> coffee_;
+public:
+    CoffeeDecorator(std::unique_ptr<Coffee> coffee)
+        : coffee_{std::move(coffee)}
+    {
+    }
+
+    float get_total_price() const override { return coffee_->get_total_price(); }
+    std::string get_description() const override { return coffee_->get_description(); }
+    void prepare() override { coffee_->prepare(); }
+};
+
+class WhippedCream : public CoffeeDecorator
+{
+public: 
+    using CoffeeDecorator::CoffeeDecorator;
+
+    float get_total_price() const override
+    {
+        return CoffeeDecorator::get_total_price() + 2.5f;
+    }
+
+    std::string get_description() const override
+    {
+        return CoffeeDecorator::get_description() + ", Whipped Cream";
+    }
+
+    void prepare() override
+    {
+        CoffeeDecorator::prepare();
+        std::cout << "Adding whipped cream.\n";
+    }
+};
+
+class Whisky : public CoffeeDecorator
+{
+public: 
+    using CoffeeDecorator::CoffeeDecorator;
+
+    float get_total_price() const override
+    {
+        return CoffeeDecorator::get_total_price() + 6.0f;
+    }
+
+    std::string get_description() const override
+    {
+        return CoffeeDecorator::get_description() + ", Whisky";
+    }
+
+    void prepare() override
+    {
+        CoffeeDecorator::prepare();
+        std::cout << "Adding whisky.\n";
+    }
+};
+
+class ExtraEspresso : public CoffeeDecorator
+{
+public: 
+    using CoffeeDecorator::CoffeeDecorator;
+
+    float get_total_price() const override
+    {
+        return CoffeeDecorator::get_total_price() + 4.0f;
+    }
+
+    std::string get_description() const override
+    {
+        return CoffeeDecorator::get_description() + ", Extra Espresso";
+    }
+
+    void prepare() override
+    {
+        CoffeeDecorator::prepare();
+        std::cout << "Adding extra espresso.\n";
+    }
+};
 
 #endif /*COFFEEHELL_HPP_*/
