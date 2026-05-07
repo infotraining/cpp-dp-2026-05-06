@@ -1,4 +1,4 @@
-FROM infotrainingdev/gcc15-cmake410-vcpkg-nolibs:latest
+FROM infotrainingdev/gcc16-cmake4-vcpkg-nolibs:latest
 
 WORKDIR /root
 
