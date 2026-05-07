@@ -40,4 +40,15 @@ int main()
 
     for (const auto& line : csv_doc)
         cout << line << endl;
+
+    HtmlReportBuilder html_builder;
+
+    html_builder.add_header("Header")
+        .begin_data()
+            .add_row({"Row1Col1", "Row1Col2", "Row1Col3"})
+            .add_row({"Row2Col1", "Row2Col2", "Row2Col3"})
+        .end_data()
+        .add_footer("Footer");
+
+    std::cout << "\n\n" << html_builder.get_report() << std::endl;
 }

@@ -38,6 +38,18 @@ public:
     }
 };
 
+class DirectorForSportCar : public Director
+{
+public:    
+    void construct(CarBuilder& builder) override
+    {
+        builder.reset();
+        builder.build_engine();
+        builder.build_gearbox();
+        builder.build_wheels();   
+    };
+};
+
 // "Product"
 class Car
 {

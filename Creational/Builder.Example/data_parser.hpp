@@ -38,7 +38,7 @@ public:
 
         report_builder_.end_data();
 
-        report_builder_.add_footer("Copyright RaportBuilder 2013");
+        report_builder_.add_footer("Copyright RaportBuilder 2026");
     }
 
     virtual ~DataParser() = default;
