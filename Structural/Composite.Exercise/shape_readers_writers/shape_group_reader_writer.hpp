@@ -10,8 +10,21 @@ namespace Drawing
     namespace IO
     {
         // TODO: implement reading & writing for ShapeGroup
-        class ShapeGroupReaderWriter
+        class ShapeGroupReaderWriter : public ShapeReaderWriter
         {
+            ShapeFactory& shape_factory_;
+            ShapeRWFactory& shape_rw_factory_;
+
+        public:
+            ShapeGroupReaderWriter(ShapeFactory& shape_factory, ShapeRWFactory& shape_rw_factory)
+                : shape_factory_{shape_factory}, shape_rw_factory_{shape_rw_factory}
+            {
+            }
+
+        public:
+            void read(Shape& shp, std::istream& in) override;
+
+            void write(const Shape& shp, std::ostream& out) override;
         };
     }
 }
