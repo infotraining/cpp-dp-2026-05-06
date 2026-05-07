@@ -6,16 +6,16 @@
 
 namespace Game
 {
-    class AbstractEnemyFactory
+    class EnemyFactory
     {
     public:
         virtual std::unique_ptr<Enemy> CreateSoldier() = 0;
         virtual std::unique_ptr<Enemy> CreateMonster() = 0;
         virtual std::unique_ptr<Enemy> CreateSuperMonster() = 0;
-        virtual ~AbstractEnemyFactory() = default;
+        virtual ~EnemyFactory() = default;
     };
 
-    class EasyLevelEnemyFactory : public AbstractEnemyFactory
+    class EasyLevelEnemyFactory : public EnemyFactory
     {
     public:
         std::unique_ptr<Enemy> CreateSoldier() override
@@ -34,7 +34,7 @@ namespace Game
         }
     };
 
-    class DieHardLevelEnemyFactory : public AbstractEnemyFactory
+    class DieHardLevelEnemyFactory : public EnemyFactory
     {
     public:
         std::unique_ptr<Enemy> CreateSoldier() override

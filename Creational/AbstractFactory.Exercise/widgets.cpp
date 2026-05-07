@@ -131,37 +131,90 @@ public:
     }
 };
 
+// SOLUTION
+
+// Abstract Factory
+class WidgetFactory
+{
+public:
+    virtual std::unique_ptr<Button> create_button(const std::string& caption, IconType icon_type) = 0;
+    virtual std::unique_ptr<Menu> create_menu(const std::string& text) = 0;
+    virtual ~WidgetFactory() = default;
+};
+
+// //Motif Factory
+
+// class MotifWidgetFactory : public WidgetFactory
+// {
+// public:
+//     std::unique_ptr<Button> create_button(const std::string& caption, IconType icon_type) override
+//     {
+//         return std::make_unique<MotifButton>(caption, icon_type);
+//     }
+
+//     std::unique_ptr<Menu> create_menu(const std::string& text) override
+//     {
+//         return std::make_unique<MotifMenu>(text);
+//     }
+// }
+
+// // Windows Factory
+
+// class WindowsWidgetFactory : public WidgetFactory
+// {
+// public:
+//     std::unique_ptr<Button> create_button(const std::string& caption, IconType icon_type) override
+//     {
+//         return std::make_unique<WindowsButton>(caption, icon_type);
+//     }
+
+//     std::unique_ptr<Menu> create_menu(const std::string& text) override
+//     {
+//         return std::make_unique<WindowsMenu>(text);
+//     }
+// }
+
+// Template factory
+template <typename TButton, typename TMenu>
+class ConcreteWidgetFactory : public WidgetFactory
+{
+public:
+    std::unique_ptr<Button> create_button(const std::string& caption, IconType icon_type) override
+    {
+        return std::make_unique<TButton>(caption, icon_type);
+    }
+
+    std::unique_ptr<Menu> create_menu(const std::string& text) override
+    {
+        return std::make_unique<TMenu>(text);
+    }
+};
+
+using MotifWidgetFactory = ConcreteWidgetFactory<MotifButton, MotifMenu>;
+using WindowsWidgetFactory = ConcreteWidgetFactory<WindowsButton, WindowsMenu>;
+
 class WindowOne : public Window
 {
 public:
-    WindowOne()
+    WindowOne(WidgetFactory& factory)
     {
-#ifdef MOTIF
-        add_widget(std::make_unique<MotifButton>("OK", IconType::ok));
-        add_widget(std::make_unique<MotifMenu>("File"));
-#else // WINDOWS
-        add_widget(std::make_unique<WindowsButton>("OK", IconType::ok));
-        add_widget(std::make_unique<WindowsMenu>("File"));
-#endif
+        add_widget(factory.create_button("OK", IconType::ok));
+        add_widget(factory.create_menu("File"));
     }
 };
 
 class WindowTwo : public Window
 {
 public:
-    WindowTwo()
+    WindowTwo(WidgetFactory& factory)
     {
-#ifdef MOTIF
-        add_widget(std::make_unique<MotifMenu>("Edit"));
-        add_widget(std::make_unique<MotifButton>("OK", IconType::ok));
-        add_widget(std::make_unique<MotifButton>("Cancel", IconType::cancel));
-#else // WINDOWS
-        add_widget(std::make_unique<WindowsMenu>("Edit"));
-        add_widget(std::make_unique<WindowsButton>("OK", IconType::ok));
-        add_widget(std::make_unique<WindowsButton>("Cancel", IconType::cancel));
-#endif
+        add_widget(factory.create_menu("Edit"));
+        add_widget(factory.create_button("OK", IconType::ok));
+        add_widget(factory.create_button("Cancel", IconType::cancel));
     }
 };
+
+// SOLUTION
 
 // TODO - Refactor this code to use Abstract Factory pattern
 // Hint#1 - Create a WidgetFactory interface and implement it for each family of products (Motif and Windows)
@@ -169,9 +222,15 @@ public:
 
 int main()
 {
-    WindowOne w1;
+#ifdef MOTIF
+    MotifWidgetFactory factory;
+#else //WINDOWS
+    WindowsWidgetFactory factory;
+#endif
+
+    WindowOne w1(factory);
     w1.display();
 
-    WindowTwo w2;
+    WindowTwo w2(factory);
     w2.display();
 }

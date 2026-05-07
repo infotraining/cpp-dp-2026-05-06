@@ -29,10 +29,15 @@ namespace Game
     // Concrete Enemies
     //////////////////////////////////////////////////
 
+
+    /////////////////////////////////////////////////
+    // Easy level enemies
+    /////////////////////////////////////////////////
+
     class SillySoldier : public Soldier
     {
     public:
-        void action()
+        void action() override
         {
             std::cout << "SillySoldier Action" << std::endl;
         }
@@ -55,6 +60,10 @@ namespace Game
             std::cout << "SillySuperMonster Action" << std::endl;
         }
     };
+
+    /////////////////////////////////////////////////
+    // Die-hard level enemies
+    /////////////////////////////////////////////////
 
     class BadSoldier : public Soldier
     {

@@ -22,7 +22,7 @@ namespace Game
     class GameApp
     {
         std::vector<std::unique_ptr<Enemy>> enemies_;
-        std::unique_ptr<AbstractEnemyFactory> enemy_factory_;
+        std::unique_ptr<EnemyFactory> enemy_factory_;
         std::mt19937 rnd_gen_;
 
     public:
