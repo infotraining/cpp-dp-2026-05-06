@@ -13,8 +13,10 @@ int main()
     h1->set_successor(h2);
     h2->set_successor(h3);
 
+    // Chain: h1 -> h2 -> h3
+
     // Generate and process request
-    array<int, 8> requests = {2, 5, 14, 22, 18, 3, 27, 20};
+    array<int, 8> requests = {2, 5, 14, 226, 18, 3, 27, 20};
 
     for (const auto& r : requests)
     {
