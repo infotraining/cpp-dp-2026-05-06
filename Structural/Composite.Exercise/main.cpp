@@ -6,6 +6,8 @@
 #include <typeindex>
 #include <unordered_map>
 #include <vector>
+#include <list>
+#include <ranges>
 
 #include "shape.hpp"
 #include "shape_group.hpp"
@@ -62,6 +64,41 @@ public:
         shape_group_rw->write(shapes_, file_out);
     }
 };
+
+struct Array
+{
+    int items[4];
+
+    int* begin()
+    {
+        return items;
+    }
+
+    int* end()
+    {
+        return items + 4;
+    }
+};
+
+static_assert(std::ranges::range<Array>);
+
+void iterator_in_cplus_cplus()
+{
+    Array vec = {1, 2, 3, 4};
+
+    for(int item : vec)
+    {
+        std::cout << item << " ";
+    }
+
+    for(auto it = vec.begin(); it != vec.end(); ++it)
+    {
+        int item = *it;
+        std::cout << item << " ";
+    }
+
+    std::cout << "\n";
+}
 
 int main()
 {
