@@ -23,7 +23,7 @@ public:
         std::cout << "Alarm..." << std::endl;
     }
 
-    virtual void display(const std::string& msg)
+    virtual void display(const std::string &msg)
     {
         std::cout << msg << std::endl;
     }
@@ -43,10 +43,10 @@ namespace Before
     class Turnstile
     {
         TurnstileState state_;
-        TurnstileAPI& api_;
+        TurnstileAPI &api_;
 
     public:
-        Turnstile(TurnstileAPI& api)
+        Turnstile(TurnstileAPI &api)
             : state_{TurnstileState::locked},
               api_{api}
         {
@@ -90,28 +90,28 @@ namespace After
     class ITurnstileState
     {
     public:
-        virtual const ITurnstileState* coin(TurnstileAPI& api) const = 0;
-        virtual const ITurnstileState* pass(TurnstileAPI& api) const = 0;
+        virtual const ITurnstileState *coin(TurnstileAPI &api) const = 0;
+        virtual const ITurnstileState *pass(TurnstileAPI &api) const = 0;
         virtual TurnstileState state() const = 0;
         virtual ~ITurnstileState()
         {
         }
 
-        static ITurnstileState* locked_state;
-        static ITurnstileState* unlocked_state;
+        static ITurnstileState *locked_state;
+        static ITurnstileState *unlocked_state;
     };
 
     class LockedState : public ITurnstileState
     {
         // TurnstileState interface
     public:
-        const ITurnstileState* coin(TurnstileAPI& api) const override
+        const ITurnstileState *coin(TurnstileAPI &api) const override
         {
             api.unlock();
             return ITurnstileState::unlocked_state;
         }
 
-        const ITurnstileState* pass(TurnstileAPI& api) const override
+        const ITurnstileState *pass(TurnstileAPI &api) const override
         {
             api.alarm();
 
@@ -128,13 +128,13 @@ namespace After
     {
         // TurnstileState interface
     public:
-        const ITurnstileState* coin(TurnstileAPI& api) const override
+        const ITurnstileState *coin(TurnstileAPI &api) const override
         {
             api.display("Thank you...");
             return this;
         }
 
-        const ITurnstileState* pass(TurnstileAPI& api) const override
+        const ITurnstileState *pass(TurnstileAPI &api) const override
         {
             api.lock();
             return ITurnstileState::locked_state;
@@ -148,11 +148,11 @@ namespace After
 
     class Turnstile
     {
-        const ITurnstileState* state_;
-        TurnstileAPI& api_;
+        const ITurnstileState *state_;
+        TurnstileAPI &api_;
 
     public:
-        Turnstile(TurnstileAPI& api)
+        Turnstile(TurnstileAPI &api)
             : state_{ITurnstileState::locked_state},
               api_{api}
         {
@@ -175,7 +175,7 @@ namespace After
     };
 }
 
-namespace cpp17
+namespace Cpp17
 {
     template <typename... Ts>
     struct overloaded : Ts...
@@ -184,75 +184,94 @@ namespace cpp17
     };
 
     template <typename... Ts>
-    overloaded(Ts...) -> overloaded<Ts...>; 
+    overloaded(Ts...) -> overloaded<Ts...>;
+
+    struct TurnstileContext
+    {
+        size_t alarm_counter{};
+        size_t pass_counter{};
+    };
 
     class Turnstile
     {
-        TurnstileAPI& api_;
+        TurnstileAPI &api_;
+        TurnstileContext context_;
 
-        struct Locked {};
-        struct Unlocked {};
+        struct Locked
+        {
+            TurnstileContext *context_;
+        };
+
+        struct Unlocked
+        {
+            TurnstileContext *context_;
+        };
 
         using TurnstileState = std::variant<Locked, Unlocked>;
-        TurnstileState state_ = Locked{};
+        TurnstileState state_;
 
         struct PassEvent
         {
-            TurnstileAPI& api_;
+            TurnstileAPI &api_;
+            TurnstileContext &context_;
 
-            TurnstileState operator()(const Locked& locked_state) const
+            TurnstileState operator()(const Locked &locked_state) const
             {
                 api_.alarm();
-                return Locked{};
+                context_.alarm_counter++;
+                return Locked{&context_};
             }
 
-            TurnstileState operator()(const Unlocked& unlocked_state) const
+            TurnstileState operator()(const Unlocked &unlocked_state) const
             {
                 api_.lock();
-                return Locked{};
+                context_.pass_counter++;
+                return Locked{&context_};
             }
         };
 
         struct CoinEvent
         {
-            TurnstileAPI& api_;
+            TurnstileAPI &api_;
+            TurnstileContext &context_;
 
-            TurnstileState operator()(const Locked& locked_state) const
+            TurnstileState operator()(const Locked &locked_state) const
             {
                 api_.unlock();
-                return Unlocked{};
+                return Unlocked{&context_};
             }
 
-            TurnstileState operator()(const Unlocked& unlocked_state) const
+            TurnstileState operator()(const Unlocked &unlocked_state) const
             {
                 api_.display("Thank you...");
-                return Unlocked{};
+                return Unlocked{&context_};
             }
         };
 
     public:
-        explicit Turnstile(TurnstileAPI& api)
-            : api_{api}
-        {}
+        explicit Turnstile(TurnstileAPI &api)
+            : api_{api}, state_{Locked{&context_}}
+        {
+        }
 
         void coin()
         {
-            state_ = std::visit(CoinEvent{api_}, state_);
+            state_ = std::visit(CoinEvent{api_, context_}, state_);
         }
 
         void pass()
         {
-             state_ = std::visit(PassEvent{api_}, state_);
+            state_ = std::visit(PassEvent{api_, context_}, state_);
         }
 
         ::TurnstileState state() const
         {
-            if(std::holds_alternative<Locked>(state_))
+            if (std::holds_alternative<Locked>(state_))
                 return ::TurnstileState::locked;
-            
+
             return ::TurnstileState::unlocked;
         }
     };
 }
 
-#endif //CLASS_TEMPLATES_VECTOR_HPP
+#endif // CLASS_TEMPLATES_VECTOR_HPP
