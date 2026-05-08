@@ -27,9 +27,25 @@ int main()
     using namespace std::literals;
     auto image_filenames = {"drawing1.drw"s, "drawing2.drw"s, "drawing3.drw"s};
 
-    ClientApplication c{image_filenames, &std::make_unique<LazyBitmap, std::string>};
+    auto bitmap_factory = [](const std::string& filename) {
+        return std::make_unique<Bitmap>(filename);
+    };
+
+    auto lazy_bitmap_factory = [](const std::string& filename) {
+        return std::make_unique<LazyBitmap>(filename);
+    };
+
+    ClientApplication c{image_filenames, lazy_bitmap_factory};
 
     c.render(0);
+
+    std::cout << "\n\nPress enter to go to next page...\n\n" << std::endl;
+    std::cin.get();
+
     c.render(1);
+
+    std::cout << "\n\nPress enter to go to next page...\n\n" << std::endl;
+    std::cin.get();
+
     c.render(2);
 }

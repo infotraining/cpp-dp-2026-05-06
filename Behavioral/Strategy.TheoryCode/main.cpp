@@ -11,4 +11,7 @@ int main()
 
     data.reset_formatter(std::make_shared<CapitalizeFormatter>());
     data.pretty_print();
+
+    ModernCpp::DataContext modern_data{ModernCpp::UpperCaseFormatter{}};
+    modern_data.pretty_print();
 }

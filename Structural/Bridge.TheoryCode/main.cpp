@@ -2,7 +2,7 @@
 
 using namespace std;
 
-#define API_1
+#define API_2
 
 #ifdef API_1
 auto drawing_api = make_shared<DrawingAPI1>();
