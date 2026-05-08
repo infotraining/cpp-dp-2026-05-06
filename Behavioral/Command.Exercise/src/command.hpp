@@ -172,6 +172,11 @@ protected:
         doc_.set_memento(memento_);
     }
 
+    Document& document() const
+    {
+        return doc_;
+    }
+
 private:
     Document& doc_;
     Document::Memento memento_;
@@ -281,14 +286,33 @@ private:
 
 //--------------------------------------------------------------------------------
 // TODO - ToLower command
-class ToLowerCmd
+class ToLowerCmd : public ToUpperCmd
 {
+public:
+    using ToUpperCmd::ToUpperCmd;
+protected:
+    
+    void do_execute() override
+    {
+        document().to_lower();
+    }
 };
 
 //--------------------------------------------------------------------------------
 // TODO - Copy command
-class CopyCmd
+class CopyCmd : public Command
 {
+public:
+    CopyCmd(Document& doc, Clipboard& clipboard) : doc_{doc}, clipboard_{clipboard}
+    {}
+
+    void execute() override
+    {
+        clipboard_.set_content(doc_.text());
+    }
+private:
+    Document& doc_;
+    Clipboard& clipboard_;
 };
 
 #endif // COMMAND_HPP

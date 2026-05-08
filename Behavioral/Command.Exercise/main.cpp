@@ -17,11 +17,13 @@ int main()
 
     app.add_command("Print"s, injector.create<std::shared_ptr<PrintCmd>>());
     app.add_command("ToUpper"s, injector.create<std::shared_ptr<ToUpperCmd>>());
+    app.add_command("ToLower"s, injector.create<std::shared_ptr<ToLowerCmd>>());
     app.add_command("Clear"s, injector.create<std::shared_ptr<ClearCmd>>());
     app.add_command("AddText"s, injector.create<std::shared_ptr<AddTextCmd>>());
     app.add_command("Paste"s, injector.create<std::shared_ptr<PasteCmd>>());
     app.add_command("Undo"s, injector.create<std::shared_ptr<UndoCmd>>());
-
+    app.add_command("Copy"s, injector.create<std::shared_ptr<CopyCmd>>());
+    
     // TODO - register two commands: CopyCmd & ToLowerCmd
 
     app.run();

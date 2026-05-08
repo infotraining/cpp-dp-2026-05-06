@@ -14,6 +14,8 @@ int main()
     ExpressionEvaluator evaluator;
     expr->accept(evaluator);
 
+    std::cout << "Result: " << evaluator.result() << "\n";
+
     // TODO - uncomment code below
     
     // PrintingVisitor printer;
